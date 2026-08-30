@@ -1,8 +1,8 @@
 # Humanizer Agent
 
-A FastAPI service that uses OpenAI, LangChain, and LangGraph to rewrite text in a more natural,
-human style. The graph alternates between a writer and an evaluator, stopping when the quality
-score reaches the configured threshold or the maximum number of passes is reached.
+A FastAPI service and responsive web interface that use OpenAI, LangChain, and LangGraph to rewrite
+text in a more natural, human style. The graph alternates between a writer and an evaluator, stopping
+when the quality score reaches the configured threshold or the maximum number of passes is reached.
 
 ```text
 request -> rewrite -> evaluate -> good enough / pass limit -> response
@@ -58,8 +58,8 @@ make setup
 make run
 ```
 
-The service starts at <http://localhost:8000>. Interactive API documentation is available at
-<http://localhost:8000/docs>.
+The service starts at <http://localhost:8000>. Open that address for the Humanizer UI. Interactive
+API documentation remains available at <http://localhost:8000/docs>.
 
 Equivalent commands without `make`:
 
@@ -71,7 +71,8 @@ python3.12 -m venv .venv
 
 ## Run with Docker
 
-The simplest Docker command is:
+The UI and API run together in one FastAPI process and one Docker container. No separate frontend
+image, Node server, or second port is required. The simplest Docker command is:
 
 ```bash
 docker compose up --build
@@ -91,6 +92,8 @@ docker run --rm --env-file .env -p 8000:8000 humanizer-agent
 ```
 
 ## Call the API
+
+You can use the browser interface at <http://localhost:8000>, or call the same backend directly.
 
 Check process health and configuration readiness:
 
@@ -155,6 +158,8 @@ make lint
 
 ## API behavior
 
+- `GET /` serves the responsive Humanizer interface from the same application and container.
+- `GET /static/*` serves the UI stylesheet and browser logic.
 - `GET /health` returns `200` when the process is alive and never calls external services.
 - `GET /ready` returns `200` when `OPENAI_API_KEY` is configured, otherwise `503`.
 - `POST /humanize` runs the LangGraph workflow and returns `503` without a key or `502` if the

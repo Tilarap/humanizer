@@ -44,6 +44,23 @@ async def test_docs_are_available() -> None:
 
 
 @pytest.mark.asyncio
+async def test_ui_and_static_assets_are_served_by_the_api() -> None:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        page = await client.get("/")
+        stylesheet = await client.get("/static/styles.css")
+        script = await client.get("/static/app.js")
+
+    assert page.status_code == 200
+    assert "text/html" in page.headers["content-type"]
+    assert "Keep the meaning" in page.text
+    assert stylesheet.status_code == 200
+    assert "--violet" in stylesheet.text
+    assert script.status_code == 200
+    assert 'fetch("/humanize"' in script.text
+
+
+@pytest.mark.asyncio
 async def test_humanize_requires_an_api_key() -> None:
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:

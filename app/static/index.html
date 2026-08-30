@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Rewrite stiff, generic text into clear, natural language with a LangGraph-powered editor."
+    />
+    <title>Humanizer — Writing that sounds like you</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2218%22 fill=%22%235844e8%22/><path d=%22M19 43V21h7v8h12v-8h7v22h-7v-8H26v8z%22 fill=%22white%22/></svg>" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-texture" aria-hidden="true"></div>
+
+    <header class="site-header shell">
+      <a class="brand" href="/" aria-label="Humanizer home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" role="img">
+            <path d="M9 23V9h4.5v5h5V9H23v14h-4.5v-5h-5v5z" />
+          </svg>
+        </span>
+        <span>Humanizer</span>
+      </a>
+
+      <nav class="header-actions" aria-label="Application links">
+        <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">
+          API docs <span aria-hidden="true">↗</span>
+        </a>
+        <div class="service-pill" id="service-pill" data-state="checking" role="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="service-status">Checking service</span>
+        </div>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="eyebrow"><span></span> LangGraph writing studio</div>
+        <h1 id="page-title">Keep the meaning.<br /><em>Lose the machine.</em></h1>
+        <p>
+          Turn rigid, generic drafts into clear writing with rhythm, restraint, and a distinctly
+          human voice—without changing what you meant.
+        </p>
+        <div class="hero-notes" aria-label="Workflow facts">
+          <span><strong>01</strong> Meaning preserved</span>
+          <span><strong>02</strong> Quality reviewed</span>
+          <span><strong>03</strong> Up to 3 passes</span>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Humanizer workspace">
+        <article class="panel input-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-index">01 / Draft</span>
+              <h2>What are we rewriting?</h2>
+            </div>
+            <button class="text-button" id="example-button" type="button">Use an example</button>
+          </div>
+
+          <form id="humanizer-form">
+            <div class="textarea-wrap">
+              <label class="sr-only" for="source-text">Text to humanize</label>
+              <textarea
+                id="source-text"
+                name="text"
+                maxlength="12000"
+                placeholder="Paste the draft that sounds a little too polished, repetitive, or robotic…"
+                required
+                data-testid="source-text"
+              ></textarea>
+              <div class="input-meta">
+                <span id="word-count">0 words</span>
+                <span id="character-count">0 / 12,000</span>
+              </div>
+            </div>
+
+            <div class="preferences">
+              <div class="field">
+                <label for="audience">Audience</label>
+                <input
+                  id="audience"
+                  name="audience"
+                  type="text"
+                  maxlength="100"
+                  value="general readers"
+                  placeholder="e.g. product leaders"
+                />
+              </div>
+              <div class="field">
+                <label for="tone">Voice</label>
+                <select id="tone" name="tone">
+                  <option value="clear and conversational">Clear &amp; conversational</option>
+                  <option value="concise and direct">Concise &amp; direct</option>
+                  <option value="warm and approachable">Warm &amp; approachable</option>
+                  <option value="professional but human">Professional, but human</option>
+                  <option value="confident and persuasive">Confident &amp; persuasive</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="secondary-button" id="reset-button" type="button">Clear</button>
+              <button class="primary-button" id="submit-button" type="submit">
+                <span class="button-label">Humanize text</span>
+                <span class="button-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+            <p class="shortcut-hint"><kbd>⌘</kbd> + <kbd>Enter</kbd> to run</p>
+          </form>
+        </article>
+
+        <article class="panel output-panel" id="output-panel" aria-live="polite">
+          <div class="panel-heading output-heading">
+            <div>
+              <span class="panel-index">02 / Result</span>
+              <h2>Your humanized copy</h2>
+            </div>
+            <button class="copy-button" id="copy-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 7V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+                <rect x="3" y="8" width="13" height="13" rx="2" />
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+
+          <div class="output-body">
+            <div class="empty-state" id="empty-state">
+              <div class="empty-visual" aria-hidden="true">
+                <span class="orbit orbit-one"></span>
+                <span class="orbit orbit-two"></span>
+                <svg viewBox="0 0 64 64">
+                  <path d="M18 16h28a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4V20a4 4 0 0 1 4-4Z" />
+                  <path d="M22 27h20M22 34h15M22 41h9" />
+                </svg>
+              </div>
+              <h3>Ready when your draft is.</h3>
+              <p>Your result, quality score, and revision details will appear here.</p>
+            </div>
+
+            <div class="loading-state is-hidden" id="loading-state" role="status">
+              <div class="thinking-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div>
+                <h3>Finding the human rhythm…</h3>
+                <p id="loading-message">Reworking structure and phrasing</p>
+              </div>
+              <div class="progress-track" aria-hidden="true"><span></span></div>
+            </div>
+
+            <div class="error-state is-hidden" id="error-state" role="alert">
+              <span class="error-icon" aria-hidden="true">!</span>
+              <div>
+                <h3>We couldn’t finish that rewrite.</h3>
+                <p id="error-message">Check your connection and try again.</p>
+              </div>
+            </div>
+
+            <div class="result-state is-hidden" id="result-state">
+              <div class="result-copy" id="result-copy"></div>
+              <div class="result-footer">
+                <div class="score-wrap">
+                  <div class="score-ring" id="score-ring" style="--score-angle: 0deg">
+                    <div><strong id="score-value">0</strong><span>/ 100</span></div>
+                  </div>
+                  <div><span>Human score</span><strong id="score-label">Polished</strong></div>
+                </div>
+                <dl class="result-details">
+                  <div><dt>Passes</dt><dd id="passes-value">—</dd></div>
+                  <div><dt>Model</dt><dd id="model-value">—</dd></div>
+                  <div><dt>Words</dt><dd id="result-word-count">—</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="process" aria-labelledby="process-title">
+        <div class="process-copy">
+          <span class="panel-index">Under the hood</span>
+          <h2 id="process-title">A second set of eyes,<br />built into the workflow.</h2>
+        </div>
+        <ol class="process-steps">
+          <li><span>1</span><div><strong>Rewrite</strong><p>An editor model reshapes the draft while protecting facts and intent.</p></div></li>
+          <li><span>2</span><div><strong>Review</strong><p>A structured evaluator scores clarity, flow, variety, and restraint.</p></div></li>
+          <li><span>3</span><div><strong>Refine</strong><p>LangGraph loops on concrete feedback until the score passes or the limit is reached.</p></div></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer shell">
+      <p>Powered by LangGraph + OpenAI</p>
+      <p>Your API key stays on the server.</p>
+    </footer>
+  </body>
+</html>
