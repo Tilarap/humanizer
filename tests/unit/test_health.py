@@ -4,7 +4,7 @@ from time import perf_counter
 
 import httpx
 import pytest
-from pydantic import ValidationError
+from pydantic import SecretStr, ValidationError
 
 from app.config import Settings
 from app.logging_conf import JsonFormatter
@@ -41,6 +41,41 @@ async def test_docs_are_available() -> None:
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         assert (await client.get("/docs")).status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_humanize_requires_an_api_key() -> None:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post("/humanize", json={"text": "Please rewrite this."})
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "OPENAI_API_KEY is not configured"}
+
+
+@pytest.mark.asyncio
+async def test_humanize_returns_the_graph_result(monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakeGraph:
+        async def ainvoke(self, state: dict[str, object]) -> dict[str, object]:
+            return {**state, "current_text": "A natural rewrite.", "score": 91.0, "passes": 2}
+
+    monkeypatch.setattr("app.api.routes.settings.openai_api_key", SecretStr("test-key"))
+    monkeypatch.setattr("app.api.routes.get_humanizer_graph", FakeGraph)
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/humanize",
+            json={"text": "Please rewrite this.", "audience": "engineers", "tone": "direct"},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "text": "A natural rewrite.",
+        "score": 91.0,
+        "passes": 2,
+        "model": "gpt-4.1-mini",
+    }
 
 
 def test_settings_reject_an_invalid_port() -> None:
